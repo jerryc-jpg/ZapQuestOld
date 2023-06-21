@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import Home from './Home';
 import Login from './Login';
+import Map from './Map';
 import Cart from './Cart';
 import { useSelector, useDispatch } from 'react-redux';
 import { loginWithToken, fetchCart } from '../store';
@@ -22,7 +23,7 @@ const App = ()=> {
     <div>
       <h1>Acme Shopping</h1>
       {
-        auth.id ? <Home /> : <Login />
+        auth.id ? <Home /> : <Map />
       }
       {
         !!auth.id  && (
