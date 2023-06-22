@@ -2,20 +2,22 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../store';
 import { Link } from 'react-router-dom';
+import EVStation_IL from './EVStation_IL.json';
 
-const Cart = ()=> {
-  const { cart } = useSelector(state => state);
-  const dispatch = useDispatch();
+const Stations = ()=> {
+  //console.log(EVStation_IL);
+  
+
   return (
     <div>
-      <h1>Cart</h1>
+      <h1>Stations</h1>
       <pre>
         {
-          JSON.stringify(cart, null, 2)
+          JSON.stringify(EVStation_IL, null, 2)
         }
       </pre>
     </div>
   );
 };
 
-export default Cart;
+export default Stations;
