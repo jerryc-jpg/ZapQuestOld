@@ -5,7 +5,7 @@ const password = '123';
 const hashedPassword = bcrypt.hashSync(password, 10);
 
 const syncAndSeed = async()=> {
-  await prisma.$queryRaw`DELETE FROM "User"`
+  await prisma.user.deleteMany();
   await prisma.user.create({
     data: {
       username: 'moe',
