@@ -8,8 +8,10 @@ const Map = () => {
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: 'AIzaSyAyylWo4yRMjT_HSowB1jWsz5qwnPDSUWw',
     });
-    const center = useMemo(() => ({ lat: 40.7128, lng: -74.0060 }), []);
+    const originCenter = useMemo(() => ({ lat: 40.7128, lng: -74.0060 }), []);
+    const [center,setCenter]= useState(originCenter);
     const [myLocation, setMyLocation] = useState(null);
+    const [searchInput,setSearchInput] = useState('');
     const [searchLocation, setSearchLocation] = useState(null);
     const [addressList,setAddressList] = useState([center]);
 
@@ -31,22 +33,21 @@ const Map = () => {
         }
       };
       
-      const handleSearchGeo = async () => {
-        let location = '22 Main st Boston MA';
+      const handleSearchGeo = async (ev) => {
+        ev.preventDefault();
         try {
-          const response = await axios.get('https://maps.googleapis.com/maps/api/geocode/json', {
-            params: {
-              address: location,
-              key: 'AIzaSyAyylWo4yRMjT_HSowB1jWsz5qwnPDSUWw', // Replace with your own API key
-            },
-          });
-          console.log(response);
-          const mySearchLocation = response.data.results[0].geometry.location;
-          console.log(mySearchLocation);
-          setSearchLocation(mySearchLocation);
-          setAddressList((prevAddressList) => [...prevAddressList, mySearchLocation]);
+            console.log('searchInput:',searchInput)
+            const response = await axios.get('https://maps.googleapis.com/maps/api/geocode/json', {
+                params: {
+                address: searchInput,
+                key: 'AIzaSyAyylWo4yRMjT_HSowB1jWsz5qwnPDSUWw', // Replace with your own API key
+                },
+            });
+            const mySearchLocation = response.data.results[0].geometry.location;
+            setSearchLocation(mySearchLocation);
+            setAddressList((prevAddressList) => [...prevAddressList, mySearchLocation]);
         } catch (ex) {
-          console.log(ex);
+            console.log(ex);
         }
       };
 
@@ -57,11 +58,17 @@ const Map = () => {
         });
         map.fitBounds(bounds);
     }
-    
+    const onChange = (ev)=>{
+        setSearchInput(ev.target.value);
+    } 
 
-    console.log(addressList);
+
     return (
         <div className="Map">
+            <form onSubmit={handleSearchGeo}>
+                <input placeholder=" search city, place or address" value={searchInput} onChange={onChange}/>
+                <button>search</button>
+            </form>
         {!isLoaded ? (
             <h1>Loading...</h1>
         ) : (
@@ -89,7 +96,7 @@ const Map = () => {
             
         </GoogleMap>
         )}
-        <button className="map-button" onClick={handleLocalLocation}>Button</button>
+        <button className="map-button" onClick={handleLocalLocation}>My Location</button>
         <button onClick={handleSearchGeo}>getGeoCode</button>
         </div>
     );

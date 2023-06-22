@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Home from './Home';
 import Login from './Login';
 import Map from './Map';
@@ -10,6 +10,8 @@ import { Link, Routes, Route } from 'react-router-dom';
 const App = ()=> {
   const { auth } = useSelector(state => state);
   const dispatch = useDispatch();
+
+
   useEffect(()=> {
     dispatch(loginWithToken());
   }, []);
@@ -21,7 +23,7 @@ const App = ()=> {
   }, [auth]);
   return (
     <div>
-      <h1>Acme Shopping</h1>
+      <h1>ZapQuest</h1>
       {
         auth.id ? <Home /> : <Map />
       }
@@ -30,6 +32,7 @@ const App = ()=> {
           <div>
             <nav>
               <Link to='/'>Home</Link>
+              
               <Link to='/cart'>Cart</Link>
             </nav>
             <Routes>
