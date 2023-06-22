@@ -96,7 +96,6 @@ const Map = () => {
             const mySearchLocation = response.data.results[0].geometry.location;
             handleEVStations(zipcode);
             setSearchLocation(mySearchLocation);
-            setCenter(mySearchLocation);
             setAddressList((prevAddressList) => [...prevAddressList, mySearchLocation]);
         } catch (ex) {
             console.log(ex);
