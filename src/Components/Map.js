@@ -9,13 +9,34 @@ const Map = () => {
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: 'AIzaSyAyylWo4yRMjT_HSowB1jWsz5qwnPDSUWw',
     });
-    const originCenter = useMemo(() => ({ lat: 41.8781, lng: -87.6298 }), []);
-    const [center,setCenter]= useState(originCenter);
+
+    const originCenter = useMemo(() => ({ lat: 41.8781, lng: -87.000 }), []);
+    const [center,setCenter]= useState(null);
+    // const originCenter = useMemo(() => ({ lat: 41.8781, lng: -87.000 }), []);
+    // const [center,setCenter]= useState(originCenter);
     const [myLocation, setMyLocation] = useState(null);
     const [searchInput,setSearchInput] = useState('');
     const [searchLocation, setSearchLocation] = useState(null);
     const [addressList,setAddressList] = useState([center]);
     const [EVSList,setEVSList] = useState(null);
+
+    React.useEffect(() => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const { latitude, longitude } = position.coords;
+              const userLocation = { lat: latitude, lng: longitude };
+              setMyLocation(userLocation);
+              setCenter(userLocation);
+              setAddressList((prevAddressList) => [...prevAddressList, userLocation]);
+            },
+            (error) => {
+              console.error(error.message);
+            }
+          );
+        }
+      }, []);
+
 
     const handleLocalLocation = () => {
         if (navigator.geolocation) {
@@ -36,7 +57,7 @@ const Map = () => {
         }
       };
       
-      const handleEVStations = async (zipcode) => {
+    const handleEVStations = async (zipcode) => {
         try {
             const response = await axios.get('https://developer.nrel.gov/api/alt-fuel-stations/v1.json', {
                 params: {
@@ -52,10 +73,10 @@ const Map = () => {
         } catch (ex) {
             console.log(ex);
         }
-      };
+    };
 
      
-      const handleSearchGeo = async (ev) => {
+    const handleSearchGeo = async (ev) => {
         ev.preventDefault();
         try {
             console.log('searchInput:',searchInput)
@@ -73,21 +94,24 @@ const Map = () => {
             const tempZipcode = response.data.results[0].address_components[response.data.results[0].address_components.length - 1].long_name
             console.log('zipcode type:',typeof zipcode,'zipcode:',zipcode);
             const mySearchLocation = response.data.results[0].geometry.location;
-            handleEVStations(zipcode)
+            handleEVStations(zipcode);
             setSearchLocation(mySearchLocation);
+            setCenter(mySearchLocation);
             setAddressList((prevAddressList) => [...prevAddressList, mySearchLocation]);
         } catch (ex) {
             console.log(ex);
         }
-      };
+    };
 
     const onLoad = (map) => {
         const bounds = new google.maps.LatLngBounds();
-        addressList?.forEach(({lat,lng}) =>{
-            bounds.extend({lat,lng})
-        });
+        console.log('addressList:', addressList);
+        if(addressList[0]){
+            addressList.forEach(({ lat, lng }) => {
+          bounds.extend({ lat, lng });
+        });}
         map.fitBounds(bounds);
-    }
+      };
     const onChange = (ev)=>{
         setSearchInput(ev.target.value);
     } 
@@ -106,7 +130,8 @@ const Map = () => {
         ) : (
             <GoogleMap
             mapContainerClassName="map-container"
-            onLoad={onLoad}
+            center={center}
+            zoom={15}
             >
                 <Marker 
                     position={center} 
